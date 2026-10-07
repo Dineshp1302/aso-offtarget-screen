@@ -10,29 +10,19 @@ An ASO is a ~20 nt oligonucleotide designed to bind one transcript and trigger R
 
 Standard screens align candidates against the reference genome. But a reference genome is one sample. A site carrying 2 mismatches in GRCh38 may carry only 1 in someone homozygous for a common variant — making an ASO acceptably specific for most people and not for them. This pipeline quantifies that.
 
-Pipeline
-TTR transcript (GENCODE)
-        │
-        ▼  tile_candidates.py      20-mers, 1 nt step, design filters
-   candidates.fa
-        │
-        ▼  bowtie2 -a              end-to-end, gapless, ≤3 mismatches
-   hits.bam
-        │
-        ▼  parse_alignments.py     mismatch positions in ASO coordinates
-   hits_table.tsv ──────────────▶ offtarget_sites.bed
-        │                                  │
-        │                                  ▼  bcftools -R
-        │                          gnomAD v4.1 SNVs (PASS, AF>0.001)
-        │                                  │
-        ▼  variant_rescore.py ◀────────────┘
-   variant_rescored.tsv            REF vs ALT duplex quality
-        │
-        ▼  score_and_rank.py       composite risk, gene context
-   candidates_ranked.tsv
-        │
-        ▼  make_figures.py
-   figures/
+```mermaid
+flowchart TD
+    A[TTR transcript<br/>GENCODE v44] -->|tile_candidates.py| B[candidates.fa<br/>259 of 597 windows pass]
+    B -->|bowtie2 -a<br/>end-to-end, gapless, ≤3 mm| C[hits.bam]
+    C -->|parse_alignments.py| D[hits_table.tsv<br/>mismatch positions in ASO coords]
+    D --> E[offtarget_sites.bed]
+    E -->|bcftools -R| F[gnomAD v4.1 SNVs<br/>PASS, AF greater than 0.001]
+    D --> G
+    F --> G[variant_rescore.py<br/>REF vs ALT duplex quality]
+    G --> H[variant_rescored.tsv]
+    H -->|score_and_rank.py| I[candidates_ranked.tsv<br/>composite risk, gene context]
+    I -->|make_figures.py| J[figures/]
+```
 Key design decisions
 
 Genome alignment, not transcriptome. Gapmer ASOs act on nuclear pre-mRNA, so intronic off-targets are real. Aligning to GRCh38 also makes variant intersection a coordinate join rather than a transcript→genome conversion with its attendant off-by-one errors.
