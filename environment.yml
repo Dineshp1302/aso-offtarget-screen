@@ -1,0 +1,13 @@
+name: aso
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.11
+  - numpy<2
+  - pandas<2.2
+  - matplotlib
+  - seaborn
+  - pysam
+  - biopython
+  - bowtie

@@ -1,0 +1,14 @@
+results/
+logs/
+ref/
+*.bam
+*.bai
+*.sam
+*.vcf.gz
+*.vcf.gz.tbi
+*.bt2
+*.fa
+*.fa.fai
+*.fa.gz
+__pycache__/
+*.pyc
